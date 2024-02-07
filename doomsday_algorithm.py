@@ -129,6 +129,7 @@ class DateTracker:
     def play(self, date: str = None, num_dates: int = 1, start_date: str = '1920-01-01', end_date: str = 'today', log_df: pd.DataFrame = pd.DataFrame()):
         start_time_total = time.perf_counter()
         total_tries = num_dates
+
         for i in range(0,num_dates):
           
           self.solve(date, start_date, end_date)
@@ -156,8 +157,13 @@ class DateTracker:
           end_time = time.perf_counter()
           elapsed_time = end_time - start_time
 
-          log_df['Start'] = log_start
-          log_df['Duration'] = elapsed_time
+          log = pd.DataFrame({'Log Date': [log_start.strftime('%Y-%m-%d')],
+                              'Start': [log_start.strftime('%H:%M:%S')],
+                              'Duration': [elapsed_time],
+                              'Tries': [num_tries],
+                              'Date': [self.date.strftime('%Y-%m-%d')],
+                              'Weekday': [answer]})
+          log_df = pd.concat([log_df,log])
 
           print(f'Number of tries: {num_tries}')
           print(f'\U0001F552 {round(elapsed_time,2)}s')
@@ -171,7 +177,8 @@ class DateTracker:
           print(f'{round(elapsed_time_total/num_dates,2)}s per date')
           print(f'{round(total_tries/num_dates,2)} tries per date')
           print('\n')
-        return log_df
+
+        return log_df.reset_index(drop=True)
 
     def solve(self, date: str, start_date: str, end_date: str):
         self.generate_date(date, start_date, end_date)
@@ -179,3 +186,7 @@ class DateTracker:
         self.make_twelve_year_jump()
         self.get_remaining_years()
         self.get_weekday()
+
+def main():
+    tracker = DateTracker()
+    log_df = tracker.play()
