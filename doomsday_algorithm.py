@@ -1,6 +1,9 @@
 import pandas as pd
 import random
 import time
+import os
+
+os.chdir('/content/drive/MyDrive/Python/Projetos/BD/Doomsday Algorithm')
 
 class DateTracker:
     def __init__(self, date: str = None, start_date: pd.Timestamp = pd.Timestamp('1920-01-01'), end_date: pd.Timestamp = pd.Timestamp('today'), num_dates: int = 1):
@@ -135,12 +138,13 @@ class DateTracker:
           self.solve(date, start_date, end_date)
           self.print_tracker('date')
           answer = self.doomsday_weekday
+          success = 1
 
           log_start = pd.Timestamp('today') - pd.Timedelta(hours=3)
           start_time = time.perf_counter()
 
           correct = False
-          num_tries = 1
+          num_tries = int(1)
 
           while not correct:
             guess = input('Doomsday Weekday: ')
@@ -148,6 +152,7 @@ class DateTracker:
               print("\u2713")
               correct = True
             elif guess == 'break':
+              success = int(0)
               break
             else:
               num_tries += 1
@@ -162,7 +167,9 @@ class DateTracker:
                               'Duration': [elapsed_time],
                               'Tries': [num_tries],
                               'Date': [self.date.strftime('%Y-%m-%d')],
-                              'Weekday': [answer]})
+                              'Weekday': [answer],
+                              'Success': [success]})
+          log['Success'] = log['Success'].astype(str).str[:1].astype(int)
           log_df = pd.concat([log_df,log])
 
           print(f'Number of tries: {num_tries}')
@@ -186,7 +193,3 @@ class DateTracker:
         self.make_twelve_year_jump()
         self.get_remaining_years()
         self.get_weekday()
-
-def main():
-    tracker = DateTracker()
-    log_df = tracker.play()
